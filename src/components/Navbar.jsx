@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Dropdown } from "@heroui/react";
 import Image from "next/image";
@@ -10,17 +10,27 @@ import logoLight from "../../public/assets/logo-light.png";
 import logoDark from "../../public/assets/logo-dark.png";
 
 import ThemeToggle from "./ThemeToggle";
+import { authClient, useSession } from "@/lib/auth-client";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
   const pathname = usePathname();
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+    router.push("/");
+  };
+  console.log("Session in Navbar: ", session);
 
   const mockUser = {
     name: "Alex Rider",
@@ -34,7 +44,7 @@ const Navbar = () => {
     { label: "All Tickets", path: "/all-tickets" },
   ];
 
-  const allLinks = isLoggedIn
+  const allLinks = session
     ? [...publicLinks, { label: "Dashboard", path: "/dashboard" }]
     : publicLinks;
 
@@ -84,19 +94,21 @@ const Navbar = () => {
         <div className="flex items-center gap-3.5">
           <ThemeToggle />
 
-          {isLoggedIn ? (
+          {session ? (
             <Dropdown>
               <Dropdown.Trigger>
                 <div className="flex items-center gap-2 cursor-pointer group select-none bg-gray-50 dark:bg-[#215B63]/40 pl-2 pr-3 py-1.5 rounded-full border border-gray-200/30 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-[#215B63]/70 transition-all">
                   <div className="rounded-full ring-2 ring-[#67C090] ring-offset-2 dark:ring-offset-[#124170] overflow-hidden w-7 h-7 shadow-sm transition-transform group-hover:scale-105">
-                    <img
-                      src={mockUser.avatar}
-                      alt={mockUser.name}
+                    <Image
+                      width={20}
+                      height={20}
+                      src={session?.user?.image}
+                      alt={session?.user?.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <span className="hidden lg:inline text-xs font-bold tracking-wide text-[#124170] dark:text-gray-200">
-                    {mockUser.name.split(" ")[0]}
+                    {session?.user?.name.split(" ")[0]}
                   </span>
                 </div>
               </Dropdown.Trigger>
@@ -110,7 +122,7 @@ const Navbar = () => {
                     >
                       <div className="flex flex-col gap-0.5">
                         <span className="font-bold text-[#124170] dark:text-[#AAFFC7] text-xs truncate">
-                          {mockUser.email}
+                          {session?.user?.email}
                         </span>
                       </div>
                     </Dropdown.Item>
@@ -132,7 +144,7 @@ const Navbar = () => {
                       id="logout"
                       textValue="Sign Out Context"
                       className="rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs font-bold tracking-wide"
-                      onAction={() => setIsLoggedIn(false)}
+                      onAction={handleLogout}
                     >
                       Logout
                     </Dropdown.Item>
@@ -143,13 +155,13 @@ const Navbar = () => {
           ) : (
             <div className="hidden md:flex items-center gap-2.5">
               <Link
-                href="/login"
+                href="/auth/signin"
                 className="text-xs font-bold tracking-wider uppercase text-[#215B63] dark:text-gray-300 hover:text-[#124170] dark:hover:text-[#67C090] transition-colors px-4 py-2.5 rounded-full"
               >
                 Login
               </Link>
               <Link
-                href="/register"
+                href="/auth/signup"
                 className="text-xs font-bold tracking-wider uppercase bg-[#124170] dark:bg-[#67C090] text-[#AAFFC7] dark:text-[#124170] hover:scale-[1.02] active:scale-[0.98] transition-all px-5 py-2.5 rounded-full shadow-md shadow-gray-200 dark:shadow-none"
               >
                 Register
@@ -199,7 +211,7 @@ const Navbar = () => {
               </li>
             ))}
 
-            {!isLoggedIn && (
+            {!session && (
               <>
                 <div className="my-2 border-t border-gray-100 dark:border-gray-800" />
                 <li className="grid grid-cols-2 gap-3 pt-1">
