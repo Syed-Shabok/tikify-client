@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { FaUser, FaEnvelope, FaLock, FaImage, FaUserCog } from "react-icons/fa";
+import Link from "next/link";
 
 const SignupPage = () => {
   const {
@@ -103,7 +104,7 @@ const SignupPage = () => {
               >
                 <label
                   htmlFor="name"
-                  className="text-[11px] font-black uppercase tracking-wider text-[#124170] dark:text-[#AAFFC7] flex items-center gap-1.5"
+                  className="text-xs font-black uppercase tracking-wider text-[#124170] dark:text-[#AAFFC7] flex items-center gap-1.5"
                 >
                   <FaUser className="text-[10px]" />
                   Full Name
@@ -130,7 +131,8 @@ const SignupPage = () => {
               >
                 <label
                   htmlFor="email"
-                  className="text-[11px] font-black uppercase tracking-wider text-[#124170] dark:text-[#AAFFC7] flex items-center gap-1.5"
+                  className="text-xs
+                   font-black uppercase tracking-wider text-[#124170] dark:text-[#AAFFC7] flex items-center gap-1.5"
                 >
                   <FaEnvelope className="text-[10px]" />
                   Email Address
@@ -162,7 +164,7 @@ const SignupPage = () => {
               >
                 <label
                   htmlFor="image"
-                  className="text-[11px] font-black uppercase tracking-wider text-[#124170] dark:text-[#AAFFC7] flex items-center gap-1.5"
+                  className="text-xs font-black uppercase tracking-wider text-[#124170] dark:text-[#AAFFC7] flex items-center gap-1.5"
                 >
                   <FaImage className="text-[10px]" />
                   Profile Image
@@ -190,7 +192,7 @@ const SignupPage = () => {
               >
                 <label
                   htmlFor="password"
-                  className="text-[11px] font-black uppercase tracking-wider text-[#124170] dark:text-[#AAFFC7] flex items-center gap-1.5"
+                  className="text-xs font-black uppercase tracking-wider text-[#124170] dark:text-[#AAFFC7] flex items-center gap-1.5"
                 >
                   <FaLock className="text-[10px]" />
                   Password
@@ -231,7 +233,7 @@ const SignupPage = () => {
               >
                 <label
                   htmlFor="role"
-                  className="text-[11px] font-black uppercase tracking-wider text-[#124170] dark:text-[#AAFFC7] flex items-center gap-1.5"
+                  className="text-xs font-black uppercase tracking-wider text-[#124170] dark:text-[#AAFFC7] flex items-center gap-1.5"
                 >
                   <FaUserCog className="text-[10px]" />
                   Select Account Role
@@ -306,6 +308,19 @@ const SignupPage = () => {
                 </Button>
               </motion.div>
             </form>
+            {/* Form Navigation Alternative link footer */}
+            <motion.p
+              variants={itemVariants}
+              className="text-center text-sm font-semibold text-gray-500 dark:text-gray-400 pt-4"
+            >
+              Already have an account?{" "}
+              <Link
+                href="/auth/signin"
+                className="text-[#124170] dark:text-[#67C090] font-bold  hover:opacity-80 transition-opacity"
+              >
+                LOGIN HERE
+              </Link>
+            </motion.p>
           </CardBody>
         </Card>
       </motion.div>
