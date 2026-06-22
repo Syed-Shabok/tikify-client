@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Card, Button } from "@heroui/react";
 import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
 
-export const VendorTicketCard = ({ ticket }) => {
+export const VendorTicketCard = ({ ticket, onEditClick }) => {
   const isRejected = ticket?.status === "rejected";
 
   const handleUpdate = (id) => {
@@ -103,7 +103,7 @@ export const VendorTicketCard = ({ ticket }) => {
               <Button
                 size="sm"
                 disabled={isRejected}
-                onClick={() => handleUpdate(ticket?._id)}
+                onClick={onEditClick}
                 className={`w-full font-bold text-xs uppercase tracking-wider rounded-xl transition-all ${
                   isRejected
                     ? "bg-zinc-200 dark:bg-[#0b1d30]/40 text-zinc-400 dark:text-zinc-600 cursor-not-allowed opacity-50"

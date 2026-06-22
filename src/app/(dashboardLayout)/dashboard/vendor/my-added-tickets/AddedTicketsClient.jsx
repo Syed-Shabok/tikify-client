@@ -1,8 +1,9 @@
-// src/app/(dashboardLayout)/dashboard/vendor/my-added-tickets/AddedTicketsClient.jsx
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { VendorTicketCard } from "@/components/dashboard/VendorTicketCard";
+import EditTicketModal from "@/components/dashboard/EditTicketModal";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -30,7 +31,25 @@ const fallbackVariants = {
   },
 };
 
-const AddedTicketsClient = ({ tickets }) => {
+const AddedTicketsClient = ({ tickets: initialTickets }) => {
+  const [tickets, setTickets] = useState(initialTickets);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTicket, setEditingTicket] = useState(null);
+
+  const handleEditClick = (ticket) => {
+    setEditingTicket(ticket);
+    setIsModalOpen(true);
+  };
+
+  // Update or refresh local UI state on success
+  const handleTicketUpdated = (updatedTicketId, updatedData) => {
+    setTickets((prev) =>
+      prev.map((t) =>
+        t._id === updatedTicketId ? { ...t, ...updatedData } : t,
+      ),
+    );
+  };
+
   return (
     <div className="mt-8 relative z-10 max-w-7xl mx-auto">
       {tickets.length > 0 ? (
@@ -42,7 +61,10 @@ const AddedTicketsClient = ({ tickets }) => {
         >
           {tickets.map((ticket) => (
             <motion.div key={ticket._id} variants={itemVariants}>
-              <VendorTicketCard ticket={ticket} />
+              <VendorTicketCard
+                ticket={ticket}
+                onEditClick={() => handleEditClick(ticket)}
+              />
             </motion.div>
           ))}
         </motion.div>
@@ -52,7 +74,7 @@ const AddedTicketsClient = ({ tickets }) => {
           variants={fallbackVariants}
           initial="hidden"
           animate="show"
-          className="flex flex-col items-center justify-center text-center p-16 border-2 border border-zinc-200 dark:border-[#1a3d61] rounded-3xl bg-white/40 dark:bg-[#124170]/5 backdrop-blur-md mt-6 select-none h-[80vh]"
+          className="flex flex-col items-center justify-center text-center p-16 border border-zinc-200 dark:border-[#1a3d61] rounded-3xl bg-white/40 dark:bg-[#124170]/5 backdrop-blur-md mt-6 select-none h-[80vh]"
         >
           <p className="text-2xl font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
             No Tickets Found
@@ -62,6 +84,14 @@ const AddedTicketsClient = ({ tickets }) => {
           </p>
         </motion.div>
       )}
+
+      {/* TICKET EDIT MODAL */}
+      <EditTicketModal
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        editingTicket={editingTicket}
+        onSuccess={handleTicketUpdated}
+      />
     </div>
   );
 };
