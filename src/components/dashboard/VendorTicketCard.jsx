@@ -4,17 +4,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Card, Button } from "@heroui/react";
 import { FaEdit, FaTrash, FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
+import { DeleteAlertButton } from "./DeleteAlertButton";
 
-export const VendorTicketCard = ({ ticket, onEditClick }) => {
+export const VendorTicketCard = ({ ticket, onEditClick, onDeleteSuccess }) => {
   const isRejected = ticket?.status === "rejected";
-
-  const handleUpdate = (id) => {
-    console.log("Update:", id);
-  };
-
-  const handleDelete = async (id) => {
-    console.log("Delete:", id);
-  };
 
   // Configuration map for status pill styling
   const statusStyles = {
@@ -115,18 +108,11 @@ export const VendorTicketCard = ({ ticket, onEditClick }) => {
             </motion.div>
 
             <motion.div whileTap={isRejected ? {} : { scale: 0.97 }}>
-              <Button
-                size="sm"
-                disabled={isRejected}
-                onClick={() => handleDelete(ticket?._id)}
-                className={`w-full font-bold text-xs uppercase tracking-wider rounded-xl transition-all ${
-                  isRejected
-                    ? "bg-zinc-200 dark:bg-[#0b1d30]/40 text-zinc-400 dark:text-zinc-600 cursor-not-allowed opacity-50"
-                    : "bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20"
-                }`}
-              >
-                <FaTrash className="mr-1" /> Delete
-              </Button>
+              <DeleteAlertButton
+                ticket={ticket}
+                isRejected={isRejected}
+                onDeleteSuccess={onDeleteSuccess}
+              />
             </motion.div>
           </div>
         </div>

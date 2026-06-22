@@ -10,7 +10,7 @@ const AddedTicketsPage = async () => {
   // const tickets = [];
 
   return (
-    <div className="min-h-[85vh] w-full bg-slate-50 dark:bg-[#091624] px-6 py-12 relative overflow-hidden transition-colors duration-300">
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-[#091624] px-6 py-12 relative overflow-hidden transition-colors duration-300">
       {/* Structural Dashboard Banner Info segment */}
       <DashboardHeading
         title="My Added Tickets"

@@ -50,6 +50,10 @@ const AddedTicketsClient = ({ tickets: initialTickets }) => {
     );
   };
 
+  const handleTicketDeleted = (deletedId) => {
+    setTickets((prev) => prev.filter((ticket) => ticket._id !== deletedId));
+  };
+
   return (
     <div className="mt-8 relative z-10 max-w-7xl mx-auto">
       {tickets.length > 0 ? (
@@ -64,6 +68,7 @@ const AddedTicketsClient = ({ tickets: initialTickets }) => {
               <VendorTicketCard
                 ticket={ticket}
                 onEditClick={() => handleEditClick(ticket)}
+                onDeleteSuccess={handleTicketDeleted}
               />
             </motion.div>
           ))}
