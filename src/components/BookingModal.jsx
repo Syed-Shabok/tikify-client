@@ -7,36 +7,62 @@ import { useRouter } from "next/navigation";
 import { addBooking } from "@/lib/actions/bookings";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTicketAlt } from "react-icons/fa";
+import { FaTicketAlt, FaMinus, FaPlus } from "react-icons/fa";
 import { useSession } from "@/lib/auth-client";
 
 export default function BookingModal({ isOpen, onOpenChange, ticket }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [currentQty, setCurrentQty] = useState(1);
-  const { data: session } = useSession();
+  const [totalPrice, setTotalPrice] = useState(ticket.price);
 
+  const { data: session } = useSession();
   const user = session?.user;
 
+  // 1. Extract setValue and getValues to control the input programmatically
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
+    setValue,
+    getValues,
   } = useForm({
     defaultValues: { quantity: 1 },
   });
 
-  // Watch quantity to update real-time total price UI
-  const watchQty = watch("quantity", 1);
-  const totalPrice = watchQty * ticket.price;
+  const quantityRegister = register("quantity", {
+    required: "Quantity is required",
+    min: { value: 1, message: "Minimum 1 ticket" },
+    max: {
+      value: ticket.quantity,
+      message: `Maximum ${ticket.quantity} tickets allowed`,
+    },
+  });
+
+  // 2. Custom handlers for the + and - buttons
+  const updateQuantity = (newQty) => {
+    if (newQty >= 1 && newQty <= ticket.quantity) {
+      // Update react-hook-form value and trigger validation
+      setValue("quantity", newQty, { shouldValidate: true });
+      // Update local UI state
+      setTotalPrice(newQty * ticket.price);
+    }
+  };
+
+  const handleIncrement = () => {
+    const currentQty = parseInt(getValues("quantity"), 10) || 1;
+    updateQuantity(currentQty + 1);
+  };
+
+  const handleDecrement = () => {
+    const currentQty = parseInt(getValues("quantity"), 10) || 1;
+    updateQuantity(currentQty - 1);
+  };
 
   const onSubmit = async (data) => {
     try {
       setLoading(true);
       const qtyToBook = parseInt(data.quantity, 10);
 
-      // Final validation before sending
       if (qtyToBook > ticket.quantity) {
         toast.error(`Only ${ticket.quantity} seats available.`);
         return;
@@ -54,9 +80,10 @@ export default function BookingModal({ isOpen, onOpenChange, ticket }) {
         image: ticket.image,
         vendorName: ticket.vendorName,
         vendorEmail: ticket.vendorEmail,
-        status: "pending",
         passengerName: user?.name,
         passengerEmail: user?.email,
+        status: "pending",
+        paymentStatus: "due",
       };
 
       const result = await addBooking(payload);
@@ -76,8 +103,9 @@ export default function BookingModal({ isOpen, onOpenChange, ticket }) {
     }
   };
 
+  // Centered the text in the input for a cleaner look with the buttons
   const inputClass =
-    "w-full h-12 px-3.5 rounded-xl bg-zinc-100/80 dark:bg-[#0b1d30]/80 border border-zinc-200/80 dark:border-[#1a3d61] text-base font-bold text-zinc-900 dark:text-[#AAFFC7] focus:outline-none focus:border-[#00ADB5] focus:ring-1 focus:ring-[#00ADB5] transition-all";
+    "w-full h-12 rounded-xl bg-zinc-100/80 dark:bg-[#0b1d30]/80 border border-zinc-200/80 dark:border-[#1a3d61] text-base font-bold text-zinc-900 dark:text-[#AAFFC7] focus:outline-none focus:border-[#00ADB5] focus:ring-1 focus:ring-[#00ADB5] transition-all text-center";
 
   return (
     <AnimatePresence>
@@ -112,31 +140,56 @@ export default function BookingModal({ isOpen, onOpenChange, ticket }) {
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 block">
                   Select Quantity
                 </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
-                    <FaTicketAlt size={16} />
-                  </span>
-                  <input
-                    type="number"
-                    min="1"
-                    max={ticket.quantity}
-                    className={`${inputClass} pl-11`}
-                    {...register("quantity", {
-                      required: "Quantity is required",
-                      min: { value: 1, message: "Minimum 1 ticket" },
-                      max: {
-                        value: ticket.quantity,
-                        message: `Maximum ${ticket.quantity} tickets allowed`,
-                      },
-                    })}
-                  />
+
+                {/* 3. New Flex Container for Buttons and Input */}
+                <div className="flex items-center gap-3">
+                  <Button
+                    isIconOnly
+                    type="button"
+                    onPress={handleDecrement}
+                    className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#00ADB5] text-zinc-400 hover:text-white shrink-0 transition-all"
+                  >
+                    <FaMinus size={14} />
+                  </Button>
+
+                  <div className="relative flex-1">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
+                      <FaTicketAlt size={16} />
+                    </span>
+                    <input
+                      type="number"
+                      min="1"
+                      max={ticket.quantity}
+                      className={`${inputClass} pl-8 pr-3`} // Adjusted padding to accommodate the icon
+                      {...quantityRegister}
+                      onChange={(e) => {
+                        quantityRegister.onChange(e);
+                        const qty = parseInt(e.target.value, 10);
+                        if (!isNaN(qty) && qty > 0) {
+                          setTotalPrice(qty * ticket.price);
+                        } else {
+                          setTotalPrice(ticket.price);
+                        }
+                      }}
+                    />
+                  </div>
+
+                  <Button
+                    isIconOnly
+                    type="button"
+                    onPress={handleIncrement}
+                    className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#00ADB5] text-zinc-400 hover:text-white shrink-0 transition-all"
+                  >
+                    <FaPlus size={14} />
+                  </Button>
                 </div>
+
                 {errors.quantity && (
-                  <p className="text-red-400 text-xs mt-2 font-semibold">
+                  <p className="text-red-400 text-xs mt-2 font-semibold text-center">
                     {errors.quantity.message}
                   </p>
                 )}
-                <p className="text-[10px] uppercase font-bold text-zinc-500 mt-2 text-right">
+                <p className="text-[10px] uppercase font-bold text-zinc-500 mt-3 text-center tracking-widest">
                   Available: {ticket.quantity} Seats
                 </p>
               </div>
@@ -147,7 +200,7 @@ export default function BookingModal({ isOpen, onOpenChange, ticket }) {
                     Total Price
                   </span>
                   <span className="text-xl font-black text-[#00ADB5]">
-                    ৳{totalPrice || ticket.price}
+                    ৳{totalPrice}
                   </span>
                 </div>
               </div>
