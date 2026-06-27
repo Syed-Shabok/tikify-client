@@ -18,6 +18,9 @@ const AddTicketPage = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [transportOpen, setTransportOpen] = useState(false);
+  const [selectedTransport, setSelectedTransport] = useState("");
+
   // New States for Security Check
   const [isVendorBlocked, setIsVendorBlocked] = useState(false);
   const [isLoadingStatus, setIsLoadingStatus] = useState(true);
@@ -309,35 +312,54 @@ const AddTicketPage = () => {
                   >
                     Transport Type
                   </Label>
-                  <select
-                    id="transportType"
-                    className="w-full h-10 px-3 rounded-xl bg-zinc-100/80 dark:bg-[#0b1d30]/80 border border-gray-300 dark:border-[#1B3C61] text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-[#67C090] focus:ring-1 focus:ring-[#67C090] transition-colors text-sm font-semibold cursor-pointer appearance-none"
-                    {...register("transportType", {
-                      required: "Select your transport vessel archetype",
-                    })}
-                  >
-                    <option
-                      value=""
-                      disabled
-                      className="bg-white dark:bg-[#091624] text-zinc-900 dark:text-zinc-100"
-                    >
-                      Select Type
-                    </option>
-                    {TRANSPORT_TYPES.map((type) => (
-                      <option
-                        key={type}
-                        value={type}
-                        className="bg-white dark:bg-[#091624] text-zinc-900 dark:text-zinc-100"
+                  <div>
+                    <input
+                      type="hidden"
+                      {...register("transportType", {
+                        required: "Select your transport vessel archetype",
+                      })}
+                      value={selectedTransport}
+                    />
+                    <div className="relative w-full">
+                      <button
+                        type="button"
+                        onClick={() => setTransportOpen((prev) => !prev)}
+                        className="w-full h-10 bg-zinc-100/80  dark:bg-[#0b1d30]/80 border border-gray-300 dark:border-[#1B3C61] rounded-xl px-3 pr-8 text-sm font-semibold text-left focus:outline-none focus:border-[#67C090] focus:ring-1 focus:ring-[#67C090] transition-colors cursor-pointer text-zinc-900 dark:text-zinc-100"
                       >
-                        {type}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.transportType && (
-                    <p className="text-red-500 dark:text-red-400 text-[11px] font-bold tracking-wide uppercase mt-1.5 ml-1 select-none">
-                      {errors.transportType.message}
-                    </p>
-                  )}
+                        {selectedTransport || "Select Type"}
+                      </button>
+                      <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-zinc-400 text-[8px]">
+                        {transportOpen ? "▲" : "▼"}
+                      </div>
+                      {transportOpen && (
+                        <div className="absolute z-50 top-[calc(100%+4px)] left-0 w-full bg-white dark:bg-[#0b1d30] border border-gray-300 dark:border-[#1B3C61] rounded-xl overflow-hidden shadow-lg">
+                          {TRANSPORT_TYPES.map((type) => (
+                            <div
+                              key={type}
+                              onClick={() => {
+                                setSelectedTransport(type);
+                                setValue("transportType", type);
+                                setTransportOpen(false);
+                              }}
+                              className={`px-3 py-2.5 text-sm font-semibold cursor-pointer transition-colors duration-150
+              ${
+                selectedTransport === type
+                  ? "bg-[#67C090]/10 text-[#124170] dark:text-[#67C090]"
+                  : "text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5"
+              }`}
+                            >
+                              {type}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {errors.transportType && (
+                      <p className="text-red-500 dark:text-red-400 text-[11px] font-bold tracking-wide uppercase mt-1.5 ml-1 select-none">
+                        {errors.transportType.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <Label
@@ -519,7 +541,7 @@ const AddTicketPage = () => {
               </motion.div>
               <motion.div
                 variants={itemVariants}
-                className="flex items-center justify-start pt-6 border-t border-zinc-200/60 dark:border-[#1a3d61]/60 mt-4"
+                className="flex items-center justify-end pt-6 border-t border-zinc-200/60 dark:border-[#1a3d61]/60 mt-4"
               >
                 <Button
                   type="submit"
