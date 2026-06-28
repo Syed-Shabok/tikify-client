@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Tikify",
+  title: "tikify",
   description:
     "Seamlessly reserve seats, track bookings, and experience premium travel across bus, train, flight, and launch vectors.",
 };
