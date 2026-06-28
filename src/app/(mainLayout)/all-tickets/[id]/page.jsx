@@ -16,12 +16,13 @@ export default async function TicketDetailsPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 dark:bg-[#091624] relative overflow-hidden transition-colors duration-300 pt-24 pb-12 px-6">
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-[rgb(9,22,36)] relative overflow-hidden transition-colors duration-300 py-24 px-6">
       {/* Background Accent Orbs for Dark Glassmorphism */}
       <div className="absolute top-20 left-10 w-[500px] h-[500px] bg-[#00ADB5]/10 dark:bg-[#124170]/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-[#102226]/40 dark:bg-[#452C20]/20 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-5xl mx-auto">
+      {/* FIX: Changed max-w-5xl to max-w-7xl and added w-full */}
+      <div className="relative z-10 max-w-7xl w-full mx-auto">
         <TicketDetailsClient ticket={ticket} />
       </div>
     </div>
